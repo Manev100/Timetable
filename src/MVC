@@ -1,0 +1,58 @@
+           view       updates <-   Model <- manipulates controller
+             
+           
+             sees	  	                                uses
+                  --->                              --->
+                                      User
+                                      
+                                      
+                                      
+                                      
+primarily in creating Graphic User Interfaces (GUIs).  based on modularity and it is to separate three different aspects of the GUI: 
+the data (model), the visual representation of the data (view), and the interface between the view and the model (controller). 
+
+
+
+Generally, the model is constructed first. This doesn't necessarily need to be anything special, 
+it's just an object the way you would normally make an object, with properties that can be configured 
+and queried using getters and setters. 
+The important thing to remember about the model is that every property that is going to show up in the view needs to support 
+property listeners. This will allow the controller to update the view when the model changes.
+
+View
+
+This can often be constructed after the model. Frequently, each property in the model will have it's own component in the GUI,
+ called an editor. Certain property types often have standard associated editor types. For instance, 
+ a property whose value in an unconstrained text string might be a text field, or a text box. 
+ Numeric properties will often use a text field as well, but in this case, the controller will need to do some checking on the 
+ entered value to make sure it is really a number. Properties with a small predefined set of allowed values will often use a 
+ combo box to allow the users to select one of the predefined values. More complex properties will likely require more complex editors.
+ 
+
+Like the model, the view will generally need to support listeners so that the controller can update the model based on the user input. 
+Different languages handle this in different ways. Some languages allow callback functions to be associated with editors, 
+which get called when the value is changed. Other languages allow you to add listeners directly to the component, 
+which can be notified when the value in the editor changes, when it's clicked on, or when it looses focus, etc.
+
+Controller
+
+The controller frequently isn't an actual object, but a collection of methods and listeners, often built in to both the model 
+and the view. The general pattern is that both the model and the view have a certain interface which provide accessibility to their 
+data values or editor respectively. For instance, for a property called Title, the model may have methods getTitle and setTitle,
+ while the view might have setTitleFieldText and getTitleFieldText. Alternatively, the view may simply provide accessor methods 
+ to its editor components directly, so you might instead have getTitleField().setText() and getTitleField().getText(). 
+ The controller is then designed to "plug into" each of these interfaces, and pass data between them. 
+ When the controller is notified through one of it's listeners that either the model or the view has changed, 
+ it may validate the new value (particularly if the value is coming from the view) and then pass it along to the other component.
+Validation
+
+When possible, it's usually best to allow the model to do all the necessary validation of values, 
+so that any changes to the allowed values, or changes simply to the validation process, only need to be made in one place.
+However, in some languages under certain circumstances, this may not be possible. 
+For instance, if a numeric property is being edited with a text field, then the value of the property passed to the controller 
+by the view will be text, not a number. In this case, the model could be made to have an additional method 
+that takes text as the input value for this property, but more likely, the controller will do the initial parsing of the 
+text to get the numeric value, and then pass it on to the model to do further validation (for instance, bounds checking). 
+When either the controller or the model determines that a passed in value is invalid, the controller will need to tell 
+the view that the value is invalid. In some cases, the view may then issue an error dialog or other notification, 
+or it may simply revert the value in it's editor to the older valid value.
