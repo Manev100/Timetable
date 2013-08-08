@@ -4,10 +4,15 @@ package marc.main;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,7 +20,7 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-public class AddItemDialog extends JPanel {
+public class AddItemDialog extends JDialog {
 	private TimetableModel model;
 	
 	private JLabel infoLabel;
@@ -26,25 +31,35 @@ public class AddItemDialog extends JPanel {
 	private JTextField locationField;
 	private JButton addButton;
 	private JButton cancelButton;
+	private String item; // should be and object later
 	
-	
-	public AddItemDialog(JFrame aFrame, String aWord, TimetableModel m){
-		super(new BorderLayout());
+	public AddItemDialog(JFrame aFrame, TimetableModel m){
+		super(aFrame,true);
 		
+		this.item = null;
 		this.model = m;
+		JPanel panel = new JPanel(new BorderLayout()); 
 		
+		panel.add(createInputMask(), BorderLayout.NORTH);
+		panel.add(createButtonPanel(), BorderLayout.CENTER);
+		panel.add(createInfoField(), BorderLayout.SOUTH);
 		
-		add(createInputMask(), BorderLayout.NORTH);
-		add(createButtonPanel(), BorderLayout.CENTER);
-		add(createInfoField(), BorderLayout.SOUTH);
+		setContentPane(panel);
+		setResizable(false);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
-		
+		// what to do on close
+		addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                clearAndHide();
+        }
+    });
 	}
 
 	private JLabel createInfoField() {
 		
 		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-		infoLabel = new JLabel("Click Add to add Item",JLabel.CENTER);
+		infoLabel = new JLabel("Fill out and click Add to add Item",JLabel.CENTER);
 		infoLabel.setBorder(loweredetched);
 		return infoLabel;
 	}
@@ -54,6 +69,29 @@ public class AddItemDialog extends JPanel {
 		
 		addButton = new JButton("Add");
 		cancelButton = new JButton("Cancel");
+		
+		//Add-Button pressed
+		addButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(inputValidated()){
+					clearAndHide();
+				}else{
+					infoLabel.setText("Failure. Please enter valid Values to continue!");
+				}
+				
+			}
+
+		});
+		
+		cancelButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				item = null;
+				clearAndHide();
+			}
+
+		});
 		
 		panel.add(addButton, BorderLayout.WEST);
 		panel.add(cancelButton, BorderLayout.EAST);
@@ -128,22 +166,33 @@ public class AddItemDialog extends JPanel {
 		panel.add(nameField, BorderLayout.CENTER);
 		return panel;
 	}
+
+	public String getResult() {
+		return item;
+	}
 	
-	public static void main(String[] args){
-		
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                
-            	JFrame frame = new JFrame("Test");
-            	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-            	AddItemDialog cont = new AddItemDialog(frame, "a", new TimetableModel());
-            	
-		
-            	frame.setContentPane(cont);
-            	frame.pack();
-            	frame.setVisible(true);
-            }
-        });
+	private void clearAndHide() {
+		locationField.setText(null);
+		nameField.setText(null);
+        toField.reset();
+        fromField.reset();
+        infoLabel.setText("Fill out and click Add to add Item");
+        dayBox.setSelectedIndex(0);
+        addButton.setFocusPainted(false);
+        cancelButton.setFocusPainted(false);
+        
+        setVisible(false);
+    }
+	
+	private boolean inputValidated() {
+		int toTime = toField.timeInInteger();
+		int fromTime = fromField.timeInInteger();
+		if(toTime != -1 && fromTime != -1 && toTime < fromTime){
+			
+		}
+		else{
+			
+		}
+		return false;
 	}
 }

@@ -102,4 +102,20 @@ public class TimeField extends JTextField {
 		});
 		
 	}
+	
+	// -1 if time not filled in correctly
+	public int timeInInteger(){
+		String t = "" + time.substring(0, 2) + time.substring(3,5);
+		try{
+			return Integer.parseInt(t);	
+		}catch(NumberFormatException e){
+			return -1;
+		}
+	}
+	
+	public void reset(){
+		time = "__:__";
+		setText(time);
+		editNumber = 4;
+	}
 }

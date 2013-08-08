@@ -3,6 +3,8 @@ package marc.main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
 import javax.swing.JFrame;
@@ -23,12 +25,16 @@ public class TimetableView {
 	private TimetableModel model;
 	private JTable table;
 	private JMenuBar topBar;
+	private AddItemDialog addItemDialog;
 	
 	public TimetableView(TimetableModel m) {
 		this.frame = new JFrame("Timetable");
 		setup();
 		this.model = m;
 		build();
+		addItemDialog = new AddItemDialog(frame, m);
+		addItemDialog.pack();
+		
 	}
 	
 	
@@ -77,7 +83,14 @@ public class TimetableView {
 		fileMenu.add(loadItem);
 		topBar.add(fileMenu);
 		
-		JMenuItem addPlayer = new JMenuItem("Add Item");
+		JMenuItem addPlayer = new JMenuItem("Add Item" );
+		addPlayer.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				addItemDialog.setLocationRelativeTo(frame);
+				addItemDialog.setVisible(true);
+				System.out.println(addItemDialog.getResult());
+			}
+		});
 		JMenuItem deletePlayer = new JMenuItem("Delete Item");
 		JSeparator sep = new JSeparator();
 		JMenuItem editBracket = new JMenuItem("Preferences");
