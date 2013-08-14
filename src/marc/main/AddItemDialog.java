@@ -20,6 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import marc.enums.DaysEnum;
+
 public class AddItemDialog extends JDialog {
 	private TimetableModel model;
 	
@@ -31,7 +33,7 @@ public class AddItemDialog extends JDialog {
 	private JTextField locationField;
 	private JButton addButton;
 	private JButton cancelButton;
-	private String item; // should be and object later
+	private Item item; 
 	
 	public AddItemDialog(JFrame aFrame, TimetableModel m){
 		super(aFrame,true);
@@ -75,6 +77,7 @@ public class AddItemDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(inputValidated()){
+					item = new Item(nameField.getText(),locationField.getText() ,new Time(fromField.getTime()),new Time(toField.getTime()),(String) dayBox.getSelectedItem());
 					clearAndHide();
 				}else{
 					infoLabel.setText("Failure. Please enter valid Values to continue!");
@@ -167,7 +170,7 @@ public class AddItemDialog extends JDialog {
 		return panel;
 	}
 
-	public String getResult() {
+	public Item getResult() {
 		return item;
 	}
 	
@@ -185,14 +188,14 @@ public class AddItemDialog extends JDialog {
     }
 	
 	private boolean inputValidated() {
-		int toTime = toField.timeInInteger();
 		int fromTime = fromField.timeInInteger();
-		if(toTime != -1 && fromTime != -1 && toTime < fromTime){
-			
+		int toTime = toField.timeInInteger();
+		if(toTime != -1 && fromTime != -1 && fromTime < toTime){
+			return true;
 		}
 		else{
-			
+			return false;
 		}
-		return false;
+		
 	}
 }

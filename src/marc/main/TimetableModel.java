@@ -9,13 +9,21 @@ import marc.enums.DaysEnum;
 public class TimetableModel {
 	private int columnCount;
 	private int rowCount;
-
-
+	private LinkedList<Item> items;
+	private static final String[] LIST_COLUMN_NAMES = {"Name", "from","to","Day", "Location"};
 	private String[] columnNames = {"Time", "Monday", "Tuesday", "Wednesday", "Thursday","Friday", "Saturday", "Sunday"};
 	
 	public TimetableModel(){
 		refreshColumnCount();
 		refreshRowCount();
+		items = new LinkedList<Item>();
+		
+		//test
+		items.add(new Item("Item 1", "Monday", new Time("2222"), new Time("1111"), "here"));
+		items.add(new Item("Item 2", "Monday", new Time("2222"), new Time("1111"), "here"));
+		items.add(new Item("Item 3", "Monday", new Time("2222"), new Time("1111"), "here"));
+		items.add(new Item("Item 4", "Monday", new Time("2222"), new Time("1111"), "here"));
+		items.add(new Item("Item 5", "Monday", new Time("2222"), new Time("1111"), "here"));
 	}
 	
 	
@@ -39,8 +47,20 @@ public class TimetableModel {
 	}
 	
 	public String[][] getContent(){
-			String[][] content = new String[rowCount][columnCount];
-			return content;
+		String[][] content = new String[rowCount][columnCount];
+		return content;
+	}
+	
+	public String[][] getItemsAsArray(){
+		if(items.size() == 0){
+			return new String[][]{{" "},{" "},{" "},{" "},{" "}};
+		}
+		String[][] content = new String[items.size()][LIST_COLUMN_NAMES.length];
+		int i = 0;
+		for(Item it: items){
+			content[i++] = it.getAttributesAsArray();
+		}
+		return content;
 	}
 	
 	private void refreshColumnCount(){
@@ -66,5 +86,17 @@ public class TimetableModel {
 	
 	public int getRowCount() {
 		return rowCount;
+	}
+	public void addItem(Item item){
+		items.add(item);
+	}
+
+
+
+	public LinkedList<Item> getItemsList() {
+		return items;
+	}
+	public int getItemCount(){
+		return items.size();
 	}
 }

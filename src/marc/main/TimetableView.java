@@ -26,6 +26,7 @@ public class TimetableView {
 	private JTable table;
 	private JMenuBar topBar;
 	private AddItemDialog addItemDialog;
+	private DeleteItemDialog deleteItemDialog;
 	
 	public TimetableView(TimetableModel m) {
 		this.frame = new JFrame("Timetable");
@@ -35,6 +36,8 @@ public class TimetableView {
 		addItemDialog = new AddItemDialog(frame, m);
 		addItemDialog.pack();
 		
+		deleteItemDialog = new DeleteItemDialog(frame, m);
+		deleteItemDialog.pack();
 	}
 	
 	
@@ -45,6 +48,7 @@ public class TimetableView {
 		JScrollPane scrollPane = new JScrollPane(createTable(),ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		p.setBottomComponent(scrollPane);
 		p.setTopComponent(createTopArea());
+		
 		
 		p.setDividerSize(0);
 		p.setEnabled(true);
@@ -58,7 +62,8 @@ public class TimetableView {
 	private JTable createTable() {
 		LinkedList<String> columnNames = model.getActiveColumnNames();
 		
-		table = new JTable(model.getContent(),columnNames.toArray());
+		table = new JTable(new NotEditableTableModel(model.getContent(), columnNames.toArray()));
+		
 		
 		table.setRowMargin(0);
 		table.getColumnModel().setColumnMargin(0);
@@ -67,6 +72,7 @@ public class TimetableView {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setBackground(Color.CYAN);
 		table.getTableHeader().setReorderingAllowed(false);
+
 		
 		return table;
 	}
@@ -88,10 +94,19 @@ public class TimetableView {
 			public void actionPerformed(ActionEvent arg0) {
 				addItemDialog.setLocationRelativeTo(frame);
 				addItemDialog.setVisible(true);
-				System.out.println(addItemDialog.getResult());
+				model.addItem(addItemDialog.getResult());
 			}
 		});
+		
 		JMenuItem deletePlayer = new JMenuItem("Delete Item");
+		deletePlayer.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				deleteItemDialog.setLocationRelativeTo(frame);
+				deleteItemDialog.setVisible(true);
+				System.out.println(model.getItemsList().toString());
+			}
+		});
+		
 		JSeparator sep = new JSeparator();
 		JMenuItem editBracket = new JMenuItem("Preferences");
 		JMenu edit = new JMenu("Edit");
