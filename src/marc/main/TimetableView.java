@@ -94,7 +94,10 @@ public class TimetableView {
 			public void actionPerformed(ActionEvent arg0) {
 				addItemDialog.setLocationRelativeTo(frame);
 				addItemDialog.setVisible(true);
-				model.addItem(addItemDialog.getResult());
+				Item newItem = addItemDialog.getResult();
+				if(newItem != null){
+					model.addItem(newItem);
+				}
 			}
 		});
 		
@@ -102,8 +105,12 @@ public class TimetableView {
 		deletePlayer.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
 				deleteItemDialog.setLocationRelativeTo(frame);
+				deleteItemDialog.refresh();
 				deleteItemDialog.setVisible(true);
-				System.out.println(model.getItemsList().toString());
+				int[] deletedItems = deleteItemDialog.getResult();
+				if(deletedItems != null){
+					model.deleteItems(deletedItems);
+				}
 			}
 		});
 		

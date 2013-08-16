@@ -1,5 +1,7 @@
 package marc.main;
 
+import java.util.LinkedList;
+
 import marc.enums.DaysEnum;
 
 public class Item {
@@ -10,15 +12,24 @@ public class Item {
 	private Time to;
 	private String day;
 	private final int ATTRIBUTECOUNT = 5;
+	private LinkedList<TimeDuration> times;
 	
-	public Item(String name, String location, Time from, Time to, String day) {
+	
+	public Item(String name, String location, String day, TimeDuration... time) {
 		this.name = name;
 		this.location = location;
-		this.from = from;
-		this.to = to;
 		this.day = day;
+		times = new LinkedList<TimeDuration>();
+		for(TimeDuration t: time){
+			times.add(t);
+		}
+		
 	}
-
+	
+	public Item(String name, String location, Time from, Time to, String day) {
+		this(name, location, day, new TimeDuration(from,to));
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -57,6 +68,10 @@ public class Item {
 
 	public void setDay(String day) {
 		this.day = day;
+	}
+	
+	public LinkedList<TimeDuration> getTimes(){
+			return times;
 	}
 	
 	public String[] getAttributesAsArray(){

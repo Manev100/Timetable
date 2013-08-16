@@ -96,7 +96,16 @@ public class TimetableModel {
 	public LinkedList<Item> getItemsList() {
 		return items;
 	}
+	
 	public int getItemCount(){
 		return items.size();
+	}
+
+
+
+	public void deleteItems(int[] ItemsToDelete) {
+		for(int i:ItemsToDelete){
+			items.remove(i);
+		}	
 	}
 }

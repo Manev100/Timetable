@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -24,11 +26,14 @@ public class DeleteItemDialog extends JDialog {
 	private final int TABLE_ROW_HEIGHT = 20;
 	private final int DIALOG_WIDTH = 400;
 	private final int MAX_VISIBLE_ROW_COUNT = 10;
+	private int[] deletedItems;
+	
 	
 	public DeleteItemDialog(JFrame aFrame, TimetableModel m) {
 		super(aFrame,true);
 		
 		this.model = m;
+		deletedItems = null;
 		JPanel panel = new JPanel(new BorderLayout()); 
 		
 		panel.add(buildList(),BorderLayout.NORTH);
@@ -41,6 +46,7 @@ public class DeleteItemDialog extends JDialog {
 		// what to do on close
 		addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
+            	deletedItems = null;
                 clearAndHide();
             }
 		});
@@ -74,7 +80,23 @@ public class DeleteItemDialog extends JDialog {
 	private JPanel buildButtons() {
 		JPanel panel = new JPanel(new BorderLayout());
 		JButton deleteButton = new JButton("Delete");
+		deleteButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				deletedItems = table.getSelectedRows();
+				clearAndHide();
+				
+			}
+		});
+		
 		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				deletedItems = null;
+				clearAndHide();
+			}
+		});
 		
 		panel.add(deleteButton, BorderLayout.WEST);
 		panel.add(cancelButton, BorderLayout.EAST);
@@ -82,7 +104,8 @@ public class DeleteItemDialog extends JDialog {
 		return panel;
 	}
 
-	private void refresh(){		
+	public void refresh(){
+		deletedItems = null;
 		boolean state = this.isVisible();
 		setVisible(false);
 		if(model.getItemCount() <= MAX_VISIBLE_ROW_COUNT){
@@ -91,7 +114,12 @@ public class DeleteItemDialog extends JDialog {
 			table.setPreferredScrollableViewportSize(new Dimension(DIALOG_WIDTH ,MAX_VISIBLE_ROW_COUNT*TABLE_ROW_HEIGHT));
 		}
 		table.setModel(new NotEditableTableModel(model.getItemsAsArray(), LIST_COLUMN_NAMES));
+		pack();
 		setVisible(state);
+	}
+	
+	public int[] getResult(){
+		return deletedItems;
 	}
 	
 	private void clearAndHide() {
