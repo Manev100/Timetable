@@ -17,6 +17,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
 
+import marc.ItemStuff.Item;
 import marc.enums.DaysEnum;
 
 public class TimetableView {
@@ -92,6 +93,7 @@ public class TimetableView {
 		JMenuItem addPlayer = new JMenuItem("Add Item" );
 		addPlayer.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
+				addItemDialog.pack();
 				addItemDialog.setLocationRelativeTo(frame);
 				addItemDialog.setVisible(true);
 				Item newItem = addItemDialog.getResult();

@@ -3,6 +3,8 @@ package marc.main;
 import java.util.EnumSet;
 import java.util.LinkedList;
 
+import marc.ItemStuff.Item;
+import marc.ItemStuff.Time;
 import marc.enums.Days;
 import marc.enums.DaysEnum;
 

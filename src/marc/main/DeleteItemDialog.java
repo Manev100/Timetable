@@ -80,6 +80,7 @@ public class DeleteItemDialog extends JDialog {
 	private JPanel buildButtons() {
 		JPanel panel = new JPanel(new BorderLayout());
 		JButton deleteButton = new JButton("Delete");
+		deleteButton.setFocusable(false);
 		deleteButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -90,6 +91,7 @@ public class DeleteItemDialog extends JDialog {
 		});
 		
 		JButton cancelButton = new JButton("Cancel");
+		cancelButton.setFocusable(false);
 		cancelButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

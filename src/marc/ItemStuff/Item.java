@@ -1,4 +1,4 @@
-package marc.main;
+package marc.ItemStuff;
 
 import java.util.LinkedList;
 
@@ -12,22 +12,22 @@ public class Item {
 	private Time to;
 	private String day;
 	private final int ATTRIBUTECOUNT = 5;
-	private LinkedList<TimeDuration> times;
+	private LinkedList<ItemDate> dates;
 	
 	
-	public Item(String name, String location, String day, TimeDuration... time) {
+	public Item(String name, ItemDate... dates) {
 		this.name = name;
-		this.location = location;
-		this.day = day;
-		times = new LinkedList<TimeDuration>();
-		for(TimeDuration t: time){
-			times.add(t);
-		}
-		
+		this.dates = new LinkedList<ItemDate>();
+		for(ItemDate t: dates){
+			this.dates.add(t);
+		}	
 	}
 	
+	
 	public Item(String name, String location, Time from, Time to, String day) {
-		this(name, location, day, new TimeDuration(from,to));
+		this(name,  new ItemDate(new TimeDuration(from,to),day,location));
+		this.from = from;
+		this.to = to;
 	}
 	
 	public String getName() {
@@ -36,14 +36,6 @@ public class Item {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
 	}
 
 	public Time getFrom() {
@@ -62,18 +54,20 @@ public class Item {
 		this.to = to;
 	}
 
-	public String getDay() {
-		return day;
-	}
-
-	public void setDay(String day) {
-		this.day = day;
+	
+	public LinkedList<ItemDate> getDates(){
+			return dates;
 	}
 	
-	public LinkedList<TimeDuration> getTimes(){
-			return times;
+	public ItemDate[] getTimesAsArray(){
+		return (ItemDate[])dates.toArray();
 	}
 	
+	public ItemDate getTimeDurationAt(int index){
+		return dates.get(index);
+	}
+	
+	//doesnt work anymore :(
 	public String[] getAttributesAsArray(){
 		String[] content = new String[ATTRIBUTECOUNT];
 		content[0] = name;
