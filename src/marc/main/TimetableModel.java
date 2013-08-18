@@ -3,6 +3,8 @@ package marc.main;
 import java.util.EnumSet;
 import java.util.LinkedList;
 
+import javax.swing.ListModel;
+
 import marc.ItemStuff.Item;
 import marc.ItemStuff.Time;
 import marc.enums.Days;
@@ -109,5 +111,17 @@ public class TimetableModel {
 		for(int i:ItemsToDelete){
 			items.remove(i);
 		}	
+	}
+
+
+
+	public String[] getItemsNames() {
+		String[] itemNames = new String[items.size()];
+		int i = 0; 
+		for(Item item:items){
+			itemNames[i] = item.getName();
+			i++;
+		}
+		return itemNames;
 	}
 }

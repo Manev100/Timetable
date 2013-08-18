@@ -29,6 +29,7 @@ import marc.ItemStuff.Item;
 import marc.ItemStuff.ItemDate;
 import marc.ItemStuff.Time;
 import marc.ItemStuff.TimeDuration;
+import marc.enums.Days;
 import marc.enums.DaysEnum;
 
 public class AddItemDialog extends JDialog {
@@ -51,7 +52,6 @@ public class AddItemDialog extends JDialog {
 	private LinkedList<JTextField> locationFields;
 	private LinkedList<JComboBox> dayFields;
 	private int numberOfDates;
-	
 	
 	
 	public AddItemDialog(JFrame aFrame, TimetableModel m){
@@ -265,6 +265,26 @@ public class AddItemDialog extends JDialog {
 			}
 		}
 		return viable;
+		
+	}
+	
+	public void fill(Item item){
+		nameField.setText(item.getName());
+		LinkedList<ItemDate> dates = item.getDates();
+		
+		int datePosition = 1;
+		for(ItemDate date: dates){
+			if(datePosition > numberOfDates){
+				createDatePanel();
+				numberOfDates++;
+			}
+			
+			fromTimes.get(datePosition-1).setTime(date.getTime().getFromTime());
+			toTimes.get(datePosition-1).setTime(date.getTime().getToTime());
+			locationFields.get(datePosition-1).setText(date.getLocation());
+			dayFields.get(datePosition-1).setSelectedIndex(Days.getDaysEnum(date.getDay()).getNumber()-1);;
+			
+		}
 		
 	}
 }

@@ -6,6 +6,8 @@ import java.awt.event.KeyListener;
 import javax.swing.JTextField;
 import javax.swing.text.*;
 
+import marc.ItemStuff.Time;
+
 public class TimeField extends JTextField {
 	private int editNumber;
 	private String time;
@@ -116,6 +118,12 @@ public class TimeField extends JTextField {
 	public String getTime(){
 		String t = "" + time.substring(0, 2) + time.substring(3,5);
 		return t;
+	}
+	
+	public void setTime(Time t){
+		time = t.getFormattedTime();
+		setText(time);
+		editNumber = 4;
 	}
 	
 	public void reset(){

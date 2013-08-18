@@ -27,7 +27,7 @@ public class TimetableView {
 	private JTable table;
 	private JMenuBar topBar;
 	private AddItemDialog addItemDialog;
-	private DeleteItemDialog deleteItemDialog;
+	private EditItemDialog editItemDialog;
 	
 	public TimetableView(TimetableModel m) {
 		this.frame = new JFrame("Timetable");
@@ -37,8 +37,8 @@ public class TimetableView {
 		addItemDialog = new AddItemDialog(frame, m);
 		addItemDialog.pack();
 		
-		deleteItemDialog = new DeleteItemDialog(frame, m);
-		deleteItemDialog.pack();
+		editItemDialog = new EditItemDialog(frame, m);
+		editItemDialog.pack();
 	}
 	
 	
@@ -103,16 +103,15 @@ public class TimetableView {
 			}
 		});
 		
-		JMenuItem deletePlayer = new JMenuItem("Delete Item");
+		JMenuItem deletePlayer = new JMenuItem("Edit Item");
 		deletePlayer.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
-				deleteItemDialog.setLocationRelativeTo(frame);
-				deleteItemDialog.refresh();
-				deleteItemDialog.setVisible(true);
-				int[] deletedItems = deleteItemDialog.getResult();
-				if(deletedItems != null){
-					model.deleteItems(deletedItems);
-				}
+				editItemDialog.setLocationRelativeTo(frame);
+				editItemDialog.setVisible(true);
+				//int[] deletedItems = editItemDialog.getResult();
+				//if(deletedItems != null){
+					//model.deleteItems(deletedItems);
+				//}
 			}
 		});
 		

@@ -12,4 +12,15 @@ public class Days {
 		return active[day.getNumber()-1];
 	}
 	
+	public static DaysEnum getDaysEnum(String day){
+		DaysEnum[] days = DaysEnum.values();
+		for(DaysEnum dayEnum: days){
+			if(day.equals(dayEnum.getName())){
+				return dayEnum;
+			}
+		}
+		throw new IllegalArgumentException("Input must be a valid (capitalized) weekday!");
+		
+	}
+	
 }
