@@ -11,6 +11,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import marc.ItemStuff.ItemDate;
+import marc.ItemStuff.Time;
+import marc.ItemStuff.TimeDuration;
+import marc.enums.Days;
+
 public class DatePanel extends JPanel {
 
 
@@ -66,8 +71,6 @@ public class DatePanel extends JPanel {
 	private JPanel createDayPanel() {
 		JPanel panel = new JPanel();
 		JLabel label = new JLabel("Day: ");
-		
-		
 		dayBox = new JComboBox(model.getActiveDays().toArray());
 		
 		panel.add(label, BorderLayout.WEST);
@@ -87,6 +90,29 @@ public class DatePanel extends JPanel {
 		
 	}
 	
+	public boolean verifyValues(){
+		boolean viable = true;
+		int fromTime = fromField.timeInInteger();
+		int toTime = toField.timeInInteger();
+		if(toTime == -1 || fromTime == -1 || fromTime >= toTime){
+			viable = false;
+		}
+		return viable;
+
+	}
+	
+	
+	
+	public ItemDate getTimeDate(){
+		if(verifyValues()){
+			TimeDuration time = new TimeDuration(new Time(fromField.getTime()), new Time(toField.getTime()));
+			ItemDate date = new ItemDate(time, (String) dayBox.getSelectedItem(), locationField.getText());
+			return date;
+		}else{
+			return null;
+		}
+	}
+	
 	public JComboBox<?> getDayBox() {
 		return dayBox;
 	}
@@ -103,14 +129,12 @@ public class DatePanel extends JPanel {
 		return locationField;
 	}
 	
-	public boolean verifyValues(){
-		boolean viable = true;
-		int fromTime = fromField.timeInInteger();
-		int toTime = toField.timeInInteger();
-		if(toTime == -1 || fromTime == -1 || fromTime >= toTime){
-			viable = false;
-		}
-		return viable;
-
+	public void fill(ItemDate date){
+		fromField.setTime(date.getTime().getFromTime());
+		toField.setTime(date.getTime().getToTime());
+		locationField.setText(date.getLocation());
+		dayBox.setSelectedIndex(Days.getDaysEnum(date.getDay()).getNumber()-1);
 	}
+	
+	
 }

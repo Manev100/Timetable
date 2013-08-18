@@ -2,9 +2,6 @@ package marc.main;
 
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,18 +16,15 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.BoxLayout;
+
 
 import marc.ItemStuff.Item;
 import marc.ItemStuff.ItemDate;
-import marc.ItemStuff.Time;
-import marc.ItemStuff.TimeDuration;
-import marc.enums.Days;
-import marc.enums.DaysEnum;
+
 
 public class AddItemDialog extends JDialog {
 	private TimetableModel model;
@@ -38,19 +32,16 @@ public class AddItemDialog extends JDialog {
 	
 	private JLabel infoLabel;
 	private JTextField nameField;
-	private JComboBox<?> dayBox;
-	private TimeField toField;
-	private TimeField fromField;
-	private JTextField locationField;
+	
 	private JButton addButton;
 	private JButton cancelButton;
-	private Item item;
+	private JButton deleteDateButton;
 	private JButton addDateButton;
+	private Item item;
 	private JPanel datesPanel;
-	private LinkedList<TimeField> fromTimes;
-	private LinkedList<TimeField> toTimes;
-	private LinkedList<JTextField> locationFields;
-	private LinkedList<JComboBox> dayFields;
+	
+	
+	private LinkedList<DatePanel> datePanels;
 	private int numberOfDates;
 	
 	
@@ -58,14 +49,16 @@ public class AddItemDialog extends JDialog {
 		super(aFrame,true);
 		this.parent = aFrame;
 		
-		numberOfDates = 1;
-		fromTimes = new LinkedList<TimeField>();
-		toTimes = new LinkedList<TimeField>();
-		locationFields = new LinkedList<JTextField>();
-		dayFields = new LinkedList<JComboBox>();
-		
 		this.item = null;
 		this.model = m;
+		
+		
+		numberOfDates = 1;
+		datePanels = new LinkedList<DatePanel>();
+		datePanels.add(new DatePanel("Date 1", model));
+		
+		
+		
 		JPanel panel = new JPanel(new BorderLayout()); 
 		
 		panel.add(createInputMask(), BorderLayout.NORTH);
@@ -93,7 +86,9 @@ public class AddItemDialog extends JDialog {
 	}
 
 	private JPanel createButtonPanel() {
-		JPanel panel = new JPanel(new BorderLayout());
+		JPanel panel = new JPanel();
+		BoxLayout layout = new BoxLayout(panel,BoxLayout.X_AXIS);
+		panel.setLayout(layout);
 		
 		addButton = new JButton("Add");
 		addButton.setFocusable(false);
@@ -101,7 +96,8 @@ public class AddItemDialog extends JDialog {
 		cancelButton.setFocusable(false);
 		addDateButton = new JButton("More Dates?");
 		addDateButton.setFocusable(false);
-		
+		deleteDateButton = new JButton("Less Dates?");
+		deleteDateButton.setFocusable(false);
 		
 		
 		//Add-Button pressed
@@ -109,13 +105,9 @@ public class AddItemDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(inputValidated()){
-					ItemDate[] dates = new ItemDate[locationFields.size()];
-					for(int i = 0; i<locationFields.size(); i++){
-						TimeDuration time = new TimeDuration(new Time(fromTimes.get(i).getTime()), new Time(toTimes.get(i).getTime()));
-						String day = dayFields.get(i).getName();
-						String location = locationFields.get(i).getText();
-						ItemDate date = new ItemDate(time, day, location);
-						dates[i] = date;
+					LinkedList<ItemDate> dates = new LinkedList<ItemDate>();
+					for(DatePanel panel : datePanels){
+						dates.add(panel.getTimeDate());
 					}
 					item = new Item(nameField.getText(),dates);
 					clearAndHide();
@@ -132,7 +124,9 @@ public class AddItemDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				numberOfDates++;
-				datesPanel.add(createDatePanel());
+				DatePanel newDatePanel = new DatePanel("Date " + numberOfDates, model);
+				datesPanel.add(newDatePanel);
+				datePanels.add(newDatePanel);
 				setLocationRelativeTo(parent);
 				pack();
 			}
@@ -148,84 +142,39 @@ public class AddItemDialog extends JDialog {
 
 		});
 		
-		panel.add(addDateButton, BorderLayout.CENTER);
-		panel.add(addButton, BorderLayout.WEST);
-		panel.add(cancelButton, BorderLayout.EAST);
+		deleteDateButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(numberOfDates>1){
+					datesPanel.remove(datePanels.getLast());
+					datePanels.removeLast();
+					numberOfDates--;
+					pack();
+				}else{
+					infoLabel.setText("Item must have atleast one Date!");
+				}
+			}
+
+		});
+		
+		panel.add(addButton);
+		panel.add(addDateButton);
+		panel.add(deleteDateButton);
+		panel.add(cancelButton);
+		
 		
 		return panel;
 	}
 
 	private JPanel createInputMask() {
 		JPanel panel = new JPanel(new BorderLayout());
-		
 		JPanel namePanel = createNamePanel();
-		datesPanel = new JPanel(new GridLayout(0, 1));
 		
-		datesPanel.add(createDatePanel());
+		datesPanel = new JPanel(new GridLayout(0,1));
+		datesPanel.add(datePanels.get(0));
 		
 		panel.add(namePanel, BorderLayout.NORTH);
 		panel.add(datesPanel, BorderLayout.SOUTH);
-		
-		return panel;
-	}
-	
-	private JPanel createDatePanel(){
-		JPanel panel = new JPanel(new BorderLayout());
-		
-		TitledBorder title = BorderFactory.createTitledBorder("Date " + numberOfDates);
-		panel.setBorder(title);
-		
-		JPanel dayPanel = createDayPanel();
-		JPanel timePanel = createTimePanel();
-		JPanel locationPanel = createLocationPanel();
-			
-		panel.add(dayPanel, BorderLayout.NORTH);
-		panel.add(timePanel, BorderLayout.CENTER);
-		panel.add(locationPanel, BorderLayout.SOUTH);
-		
-		return panel;
-	}
-
-	private JPanel createLocationPanel() {
-		JPanel panel = new JPanel();
-		JLabel label = new JLabel("Location");
-		locationField = new JTextField(20);
-		locationFields.add(locationField);
-		
-		panel.add(label, BorderLayout.WEST);
-		panel.add(locationField, BorderLayout.CENTER);
-		return panel;
-	}
-
-	private JPanel createTimePanel() {
-		JPanel panel = new JPanel(new FlowLayout());
-		toField = new TimeField();
-		fromField = new TimeField();
-		
-		
-		fromTimes.add(fromField);
-		toTimes.add(toField);
-		
-		panel.add(new JLabel("from: "),FlowLayout.LEFT);
-		panel.add(fromField, FlowLayout.CENTER);
-		panel.add(toField, FlowLayout.RIGHT);
-		panel.add(new JLabel("to: "),FlowLayout.RIGHT);
-		
-		
-		return panel;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private JPanel createDayPanel() {
-		JPanel panel = new JPanel();
-		JLabel label = new JLabel("Day: ");
-		
-		
-		dayBox = new JComboBox(model.getActiveDays().toArray());
-		dayFields.add(dayBox);
-		
-		panel.add(label, BorderLayout.WEST);
-		panel.add(dayBox, BorderLayout.EAST);
 		
 		return panel;
 	}
@@ -246,21 +195,28 @@ public class AddItemDialog extends JDialog {
 	
 	private void clearAndHide() {
 		nameField.setText(null);
-		
         datesPanel.removeAll();
-        datesPanel.add(createDatePanel());
+        datePanels.clear();
+       
+        numberOfDates = 1;
+        DatePanel newDatePanel = new DatePanel("Date " + numberOfDates, model);
+		datesPanel.add(newDatePanel);
+		datePanels.add(newDatePanel);
+		
+		
+        
         
         infoLabel.setText("Fill out and click Add to add Item");
         
         setVisible(false);
+ 
     }
 	
 	private boolean inputValidated() {
-		boolean viable = true;
-		for(int i = 0; i<toTimes.size();i++){
-			int fromTime = fromTimes.get(i).timeInInteger();
-			int toTime = toTimes.get(i).timeInInteger();
-			if(toTime == -1 || fromTime == -1 || fromTime >= toTime){
+		boolean viable = nameField.getText().equals("");
+
+		for(DatePanel panel: datePanels){
+			if(!panel.verifyValues()){
 				viable = false;
 			}
 		}
@@ -275,14 +231,11 @@ public class AddItemDialog extends JDialog {
 		int datePosition = 1;
 		for(ItemDate date: dates){
 			if(datePosition > numberOfDates){
-				createDatePanel();
 				numberOfDates++;
+				datePanels.add(new DatePanel("" + numberOfDates, model));
 			}
 			
-			fromTimes.get(datePosition-1).setTime(date.getTime().getFromTime());
-			toTimes.get(datePosition-1).setTime(date.getTime().getToTime());
-			locationFields.get(datePosition-1).setText(date.getLocation());
-			dayFields.get(datePosition-1).setSelectedIndex(Days.getDaysEnum(date.getDay()).getNumber()-1);;
+			datePanels.get(--datePosition).fill(date);
 			
 		}
 		

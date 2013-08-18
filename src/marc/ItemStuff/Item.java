@@ -23,6 +23,10 @@ public class Item {
 		}	
 	}
 	
+	public Item(String name, LinkedList<ItemDate> dat) {
+		this.name = name;
+		this.dates = dat;	
+	}
 	
 	public Item(String name, String location, Time from, Time to, String day) {
 		this(name,  new ItemDate(new TimeDuration(from,to),day,location));
