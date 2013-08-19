@@ -82,4 +82,13 @@ public class Item {
 		return content;
 	}
 	
+	@Override
+	public String toString(){
+		String str = "Name: " + name ;
+		int i = 1;
+		for(ItemDate date: dates){
+			str += "\nDate " + i++ + ": On " + date.getDay() + " " + date.getTime().toString() + " at " + date.getLocation();
+		}
+		return str;
+	}
 }

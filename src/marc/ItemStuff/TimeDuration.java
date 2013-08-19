@@ -16,4 +16,10 @@ public class TimeDuration {
 	public Time getToTime(){
 		return to;
 	}
+	
+	@Override
+	public String toString(){
+		String str = "from " + from.getFormattedTime() + " to " + to.getFormattedTime();
+		return str;
+	}
 }

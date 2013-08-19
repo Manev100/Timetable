@@ -73,10 +73,10 @@ public class AddItemDialog extends JDialog {
 		addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
                 clearAndHide();
-        }
-    });
+            }
+		});
 	}
-
+	
 	private JLabel createInfoField() {
 		
 		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
@@ -110,6 +110,7 @@ public class AddItemDialog extends JDialog {
 						dates.add(panel.getTimeDate());
 					}
 					item = new Item(nameField.getText(),dates);
+					System.out.println(item.toString());
 					clearAndHide();
 				}else{
 					infoLabel.setText("Failure. Please enter valid Values to continue!");
@@ -189,6 +190,8 @@ public class AddItemDialog extends JDialog {
 		return panel;
 	}
 
+	
+
 	public Item getResult() {
 		return item;
 	}
@@ -213,7 +216,7 @@ public class AddItemDialog extends JDialog {
     }
 	
 	private boolean inputValidated() {
-		boolean viable = nameField.getText().equals("");
+		boolean viable = !nameField.getText().equals("");
 
 		for(DatePanel panel: datePanels){
 			if(!panel.verifyValues()){
@@ -223,6 +226,7 @@ public class AddItemDialog extends JDialog {
 		return viable;
 		
 	}
+	
 	
 	public void fill(Item item){
 		nameField.setText(item.getName());
@@ -239,5 +243,21 @@ public class AddItemDialog extends JDialog {
 			
 		}
 		
+	}
+	
+	public JButton getAddButton() {
+		return addButton;
+	}
+
+	public JButton getCancelButton() {
+		return cancelButton;
+	}
+
+	public JButton getDeleteDateButton() {
+		return deleteDateButton;
+	}
+
+	public JButton getAddDateButton() {
+		return addDateButton;
 	}
 }
