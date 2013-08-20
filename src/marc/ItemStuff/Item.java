@@ -1,6 +1,8 @@
 package marc.ItemStuff;
 
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import marc.enums.DaysEnum;
 
@@ -32,6 +34,19 @@ public class Item {
 		this(name,  new ItemDate(new TimeDuration(from,to),day,location));
 		this.from = from;
 		this.to = to;
+	}
+	
+	
+	public void setDates(Collection<ItemDate> datesList){
+		dates.clear();
+		dates.addAll(datesList);
+	}
+	
+	public void setDates(ItemDate[] datesList){
+		dates.clear();
+		for(ItemDate date: datesList){
+			dates.add(date);
+		}
 	}
 	
 	public String getName() {

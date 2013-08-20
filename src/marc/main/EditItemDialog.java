@@ -3,12 +3,14 @@ package marc.main;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -23,11 +25,11 @@ public class EditItemDialog extends JDialog{
 	private JLabel info;
 	private JList<String> itemsList;
 	private JPanel selectionPanel;
-	private JPanel editPanel;
+	private ItemAddPanel editPanel;
 	private JPanel mainPanel;
 	private CardLayout cl;
 	private final int MAX_ITEMS_DISPLAYED = 4;
-	
+	private Item itemToEdit;
 	
 	private JTextField nameField;
 	
@@ -35,6 +37,7 @@ public class EditItemDialog extends JDialog{
 	private JButton addDateButton;
 	private JButton deleteDateButton;
 	private JButton editButton;
+	private Item selectedItem;
 	
 	private JLabel infoLabel;
 	
@@ -47,12 +50,9 @@ public class EditItemDialog extends JDialog{
 		mainPanel = new JPanel(cl);
 		
 		selectionPanel = buildSelectionPanel();
+		editPanel = new ItemAddPanel(model,this);
 		
-		AddItemDialog helpItemDialog = new AddItemDialog(null, m);
-		
-		editPanel = (JPanel) helpItemDialog.getContentPane();
-		//editPanel.get
-		
+		setupEditButtons();
 		
 		
 		mainPanel.add(selectionPanel);
@@ -64,6 +64,7 @@ public class EditItemDialog extends JDialog{
 		setResizable(false);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
+		pack();
 		// what to do on close
 		addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
@@ -76,145 +77,79 @@ public class EditItemDialog extends JDialog{
 	
 	
 	
-	private JPanel buildEditPanel() {
-		JPanel panel = new JPanel(new BorderLayout());
-		
-		panel.add(createInputMask(), BorderLayout.NORTH);
-		panel.add(createButtonPanel(), BorderLayout.CENTER);
-		panel.add(createInfoField(), BorderLayout.SOUTH);
-		
-		
-		return panel;
-	}
-	
-	
-
-
-
-private JLabel createInfoField() {
-		
-		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-		infoLabel = new JLabel("Fill out and click Add to add Item",JLabel.CENTER);
-		infoLabel.setBorder(loweredetched);
-		return infoLabel;
-	}
-
-	private JPanel createButtonPanel() {
-		JPanel panel = new JPanel();
-		BoxLayout layout = new BoxLayout(panel,BoxLayout.X_AXIS);
-		panel.setLayout(layout);
-		
-		editButton = new JButton("Edit");
-		editButton.setFocusable(false);
-		backButton = new JButton("Cancel");
-		backButton.setFocusable(false);
-		addDateButton = new JButton("More Dates?");
-		addDateButton.setFocusable(false);
-		deleteDateButton = new JButton("Less Dates?");
-		deleteDateButton.setFocusable(false);
-		
-		
-		//Add-Button pressed
-		editButton.addActionListener(new ActionListener(){
+	private void setupEditButtons() {
+		editPanel.getAddButton().setText("Edit");
+		editPanel.getAddButton().setName("Edit");
+		editPanel.getAddButton().addActionListener(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(inputValidated()){
+				model.deleteItem(itemToEdit);
+				if(editPanel.inputValidated()){
+					itemToEdit.setName(editPanel.getNameField().getText());
+					itemToEdit.getDates().clear();
 					LinkedList<ItemDate> dates = new LinkedList<ItemDate>();
-					for(DatePanel panel : datePanels){
+					for(DatePanel panel : editPanel.getDatePanelsList()){
 						dates.add(panel.getTimeDate());
 					}
-					item = new Item(nameField.getText(),dates);
-					System.out.println(item.toString());
-					clearAndHide();
+					
+					itemToEdit.setDates(dates);
+				
+					System.out.println(itemToEdit.toString());
+					model.addItem(itemToEdit);
+					refresh();
+					editPanel.clear();
+					pack();
+					cl.first(mainPanel);
 				}else{
-					infoLabel.setText("Failure. Please enter valid Values to continue!");
+					model.addItem(itemToEdit);
+					editPanel.getInfoLabel().setText("Failure. Please enter valid Values to continue!");
 				}
+			}
+		});
+		
+		editPanel.getCancelButton().setText("Back");
+		editPanel.getCancelButton().setName("Back");
+		editPanel.getCancelButton().addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				editPanel.clear();
+				pack();
+				cl.first(mainPanel);
 				
 			}
-
 		});
-		
-
-		addDateButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				numberOfDates++;
-				DatePanel newDatePanel = new DatePanel("Date " + numberOfDates, model);
-				datesPanel.add(newDatePanel);
-				datePanels.add(newDatePanel);
-				setLocationRelativeTo(parent);
-				pack();
-			}
-
-		});
-		
-		backButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				item = null;
-				clearAndHide();
-			}
-
-		});
-		
-		deleteDateButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if(numberOfDates>1){
-					datesPanel.remove(datePanels.getLast());
-					datePanels.removeLast();
-					numberOfDates--;
-					pack();
-				}else{
-					infoLabel.setText("Item must have atleast one Date!");
-				}
-			}
-
-		});
-		
-		panel.add(addButton);
-		panel.add(addDateButton);
-		panel.add(deleteDateButton);
-		panel.add(cancelButton);
-		
-		
-		return panel;
 	}
-
-	private JPanel createInputMask() {
-		JPanel panel = new JPanel(new BorderLayout());
-		JPanel namePanel = createNamePanel();
-		
-		datesPanel = new JPanel(new GridLayout(0,1));
-		datesPanel.add(datePanels.get(0));
-		
-		panel.add(namePanel, BorderLayout.NORTH);
-		panel.add(datesPanel, BorderLayout.SOUTH);
-		
-		return panel;
-	}
-
-	private JPanel createNamePanel() {
-		JPanel panel = new JPanel();
-		JLabel label = new JLabel("Name");
-		nameField = new JTextField(20);
-		
-		panel.add(label, BorderLayout.WEST);
-		panel.add(nameField, BorderLayout.CENTER);
-		return panel;
-	}
-
-
 
 	private JPanel buildSelectionPanel() {
-		JPanel panel = new JPanel(new BorderLayout());
+		JPanel panel = new JPanel();
+		BoxLayout layout = new BoxLayout(panel,BoxLayout.Y_AXIS);
+		panel.setLayout(layout);
 		
-		info = new JLabel("Delete oder edit Items");
+		info = new JLabel("Delete oder edit Items!", JLabel.CENTER);
+		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		info.setBorder(loweredetched);
+		info.setHorizontalTextPosition(JLabel.CENTER);	
 		
-		panel.add(buildItemPanel(), BorderLayout.NORTH);
-		panel.add(buildButtons(),BorderLayout.CENTER);
-		panel.add(info  , BorderLayout.SOUTH);
+		panel.add(buildItemPanel());
+		panel.add(buildButtons());
+		panel.add(buildInfoPanel());
 		
+		return panel;
+	}
+
+
+
+	private Component buildInfoPanel() {
+		JPanel panel = new JPanel();
+		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		panel.setBorder(loweredetched);
+		
+		info = new JLabel("Delete oder edit Items!", JLabel.CENTER);
+		info.setHorizontalTextPosition(JLabel.CENTER);	
+		
+		panel.add(info);
 		return panel;
 	}
 
@@ -240,13 +175,30 @@ private JLabel createInfoField() {
 
 	private JPanel buildButtons() {
 		JPanel panel = new JPanel(new BorderLayout());
+		panel.setMaximumSize(new Dimension(2000,50));
 		JButton deleteButton = new JButton("Delete");
 		deleteButton.setFocusable(false);
 		deleteButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// delete marked items
 				
+				List<String> selectedItems = itemsList.getSelectedValuesList();
+				if(selectedItems.size() != 0){
+					LinkedList<Item> itemsList = model.getItemsList();
+					LinkedList<Item> itemsToDelete = new LinkedList<Item>();
+					for(String itemName: selectedItems){
+						for(Item item: itemsList){
+							if(item.getName().equals(itemName)){
+								itemsToDelete.add(item);
+							}
+						}
+					}
+					model.deleteItems(itemsToDelete.toArray(new Item[0]));
+					info.setText("Delete oder edit Items!");
+					refresh();
+				}else{
+					info.setText("Please choose atleast one item to delete!");
+				}
 			}
 		});
 		
@@ -255,7 +207,15 @@ private JLabel createInfoField() {
 		continueButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				cl.last(mainPanel);
+				List<String> selectedItems = itemsList.getSelectedValuesList();
+				if(!(selectedItems.size()==1)){
+					info.setText("Please choose one item to continue!");
+				}else{
+					info.setText("Delete oder edit Items!");
+					itemToEdit = model.getItem(selectedItems.get(0));
+					editPanel.fill(itemToEdit);
+					cl.last(mainPanel);
+				}
 			}
 		});
 		
@@ -284,6 +244,5 @@ private JLabel createInfoField() {
 		cl.first(mainPanel);
         setVisible(false);
     }
-	
 	
 }

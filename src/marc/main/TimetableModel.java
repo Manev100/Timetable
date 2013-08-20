@@ -23,11 +23,21 @@ public class TimetableModel {
 		items = new LinkedList<Item>();
 		
 		//test
-		items.add(new Item("Item 1", "Monday", new Time("2222"), new Time("1111"), "here"));
-		items.add(new Item("Item 2", "Monday", new Time("2222"), new Time("1111"), "here"));
-		items.add(new Item("Item 3", "Monday", new Time("2222"), new Time("1111"), "here"));
-		items.add(new Item("Item 4", "Monday", new Time("2222"), new Time("1111"), "here"));
-		items.add(new Item("Item 5", "Monday", new Time("2222"), new Time("1111"), "here"));
+		items.add(new Item("Item 1", "here", new Time("1111"), new Time("2222"), "Monday"));
+		items.add(new Item("Item 2", "here", new Time("1111"), new Time("2222"), "Tuesday"));
+		items.add(new Item("Item 3", "here", new Time("1111"), new Time("2222"), "Saturday"));
+		items.add(new Item("Item 4", "here", new Time("1111"), new Time("2222"), "Sunday"));
+		items.add(new Item("Item 5", "here", new Time("1111"), new Time("2222"), "Thursday"));
+		items.add(new Item("Item 6", "here", new Time("1111"), new Time("2222"), "Monday"));
+		items.add(new Item("Item 7", "here", new Time("1111"), new Time("2222"), "Tuesday"));
+		items.add(new Item("Item 8", "here", new Time("1111"), new Time("2222"), "Saturday"));
+		items.add(new Item("Item 9", "here", new Time("1111"), new Time("2222"), "Sunday"));
+		items.add(new Item("Item 10", "here", new Time("1111"), new Time("2222"), "Thursday"));
+		items.add(new Item("Item 11", "here", new Time("1111"), new Time("2222"), "Monday"));
+		items.add(new Item("Item 12", "here", new Time("1111"), new Time("2222"), "Tuesday"));
+		items.add(new Item("Item 13", "here", new Time("1111"), new Time("2222"), "Saturday"));
+		items.add(new Item("Item 14", "here", new Time("1111"), new Time("2222"), "Sunday"));
+		items.add(new Item("Item 15", "here", new Time("1111"), new Time("2222"), "Thursday"));
 	}
 	
 	
@@ -105,15 +115,38 @@ public class TimetableModel {
 		return items.size();
 	}
 
-
+	public void deleteItem(Item item) {
+		items.remove(item);
+	}
 
 	public void deleteItems(int[] ItemsToDelete) {
 		for(int i:ItemsToDelete){
 			items.remove(i);
 		}	
 	}
-
-
+	public void deleteItems(Item[] ItemsToDelete) {
+		for(Item i:ItemsToDelete){
+			items.remove(i);
+		}	
+	}
+	public Item getItem(String name){
+		Item item = null;
+		for(Item i: items){
+			if(i.getName().equals(name)){
+				item = i;
+			}
+		}
+		return item;
+	}
+	
+	public boolean isNameTaken(String name){
+		for(Item i: items){
+			if(i.getName().equals(name)){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public String[] getItemsNames() {
 		String[] itemNames = new String[items.size()];
@@ -124,4 +157,5 @@ public class TimetableModel {
 		}
 		return itemNames;
 	}
+
 }
