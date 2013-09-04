@@ -22,4 +22,8 @@ public class TimeDuration {
 		String str = "from " + from.getFormattedTime() + " to " + to.getFormattedTime();
 		return str;
 	}
+	
+	public String getFormattedTimeDuration(){
+		return from.getFormattedTime() + " - " + to.getFormattedTime();
+	}
 }

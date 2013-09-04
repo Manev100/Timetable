@@ -16,6 +16,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.table.TableModel;
 
 import marc.ItemStuff.Item;
 import marc.enums.DaysEnum;
@@ -39,9 +40,20 @@ public class TimetableView {
 		
 		editItemDialog = new EditItemDialog(frame, m);
 		editItemDialog.pack();
+		
+		setTableContent(model.getTableContent());
+		
+		
 	}
 	
-	
+	public void setTableContent(String[][] content){
+		TableModel tableModel = table.getModel();
+		for(int row = 0; row<table.getRowCount();row++){
+			for(int column = 0; column < table.getColumnCount(); column++ ){
+				tableModel.setValueAt(content[row][column], row, column);
+			}
+		}
+	}
 	
 	private void build() {
 		JSplitPane p = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true);
