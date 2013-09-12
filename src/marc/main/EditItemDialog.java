@@ -46,6 +46,8 @@ public class EditItemDialog extends JDialog{
 		super(aFrame,true);
 		this.model = m;
 		
+		setTitle("Edit Item");
+		
 		cl = new CardLayout();
 		mainPanel = new JPanel(cl);
 		

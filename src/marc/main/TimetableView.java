@@ -29,6 +29,8 @@ public class TimetableView {
 	private JMenuBar topBar;
 	private AddItemDialog addItemDialog;
 	private EditItemDialog editItemDialog;
+	private EditTimesDialog editTimesDialog;
+	
 	
 	public TimetableView(TimetableModel m) {
 		this.frame = new JFrame("Timetable");
@@ -40,6 +42,9 @@ public class TimetableView {
 		
 		editItemDialog = new EditItemDialog(frame, m);
 		editItemDialog.pack();
+		
+		editTimesDialog = new EditTimesDialog(frame, m);
+		editTimesDialog.pack(); 
 		
 		setTableContent(model.getTableContent());
 		
@@ -118,12 +123,18 @@ public class TimetableView {
 		JMenuItem deletePlayer = new JMenuItem("Edit Item");
 		deletePlayer.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
+				editTimesDialog.pack();
 				editItemDialog.setLocationRelativeTo(frame);
 				editItemDialog.setVisible(true);
-				//int[] deletedItems = editItemDialog.getResult();
-				//if(deletedItems != null){
-					//model.deleteItems(deletedItems);
-				//}
+			}
+		});
+		
+		JMenuItem editTimes = new JMenuItem("Edit Times");
+		editTimes.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				editTimesDialog.pack();
+				editTimesDialog.setLocationRelativeTo(frame);
+				editTimesDialog.setVisible(true);
 			}
 		});
 		
@@ -132,6 +143,7 @@ public class TimetableView {
 		JMenu edit = new JMenu("Edit");
 		edit.add(addPlayer);
 		edit.add(deletePlayer);
+		edit.add(editTimes);
 		edit.add(sep);
 		edit.add(editBracket);
 		

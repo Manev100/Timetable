@@ -35,4 +35,16 @@ public class Time {
 	public String getFormattedTime(){
 		return time.substring(0, 2) + ":" + time.substring(2, 4);
 	}
+	public boolean equals(Time time2){
+		return time.equals(time2.getTime());
+	}
+	
+	public boolean isEarlier(Time time2){
+		return timeInt < time2.getTimeInInt();
+	}
+	
+	public boolean isLater(Time time2){
+		return timeInt > time2.getTimeInInt();
+	}
+	
 }

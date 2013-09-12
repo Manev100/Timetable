@@ -49,6 +49,8 @@ public class AddItemDialog extends JDialog {
 		super(aFrame,true);
 		this.parent = aFrame;
 		
+		setTitle("Add Item");
+		
 		this.item = null;
 		this.model = m;
 		

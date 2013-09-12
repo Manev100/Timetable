@@ -1,6 +1,7 @@
 package marc.main;
 
 import java.awt.Point;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedList;
 
@@ -9,6 +10,7 @@ import javax.swing.ListModel;
 import marc.ItemStuff.Item;
 import marc.ItemStuff.ItemDate;
 import marc.ItemStuff.Time;
+import marc.ItemStuff.TimeDuration;
 import marc.enums.Days;
 import marc.enums.DaysEnum;
 
@@ -16,14 +18,22 @@ public class TimetableModel {
 	private int columnCount;
 	private int rowCount;
 	private LinkedList<Item> items;
+	private LinkedList<TimeDuration> times;
 	private static final String[] LIST_COLUMN_NAMES = {"Name", "from","to","Day", "Location"};
 	private static final String[] DEFAULT_TIME_DURATIONS = {"08:00 - 09:00", "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 13:00" ,"13:00 - 14:00","14:00 - 15:00","15:00 - 16:00"};
 	private String[] columnNames = {"Time", "Monday", "Tuesday", "Wednesday", "Thursday","Friday", "Saturday", "Sunday"};
+	private String[] tableTimes;
+
+	private static final String FIRST_LIST_ENTRY = "New Period";
+	
 	
 	public TimetableModel(){
 		refreshColumnCount();
 		refreshRowCount();
 		items = new LinkedList<Item>();
+		times = getDefaultTimes();
+		
+		tableTimes = DEFAULT_TIME_DURATIONS;
 		
 		//test
 		items.add(new Item("Item 1", "here", new Time("1111"), new Time("2222"), "Monday"));
@@ -44,6 +54,21 @@ public class TimetableModel {
 	}
 	
 	
+
+	private LinkedList<TimeDuration> getDefaultTimes() {
+		LinkedList<TimeDuration> timesList = new LinkedList<TimeDuration>();
+		timesList.add(new TimeDuration("0800","0900"));
+		timesList.add(new TimeDuration("0900","1000"));
+		timesList.add(new TimeDuration("1000","1100"));
+		timesList.add(new TimeDuration("1100","1200"));
+		timesList.add(new TimeDuration("1200","1300"));
+		timesList.add(new TimeDuration("1300","1400"));
+		timesList.add(new TimeDuration("1400","1500"));
+		timesList.add(new TimeDuration("1500","1600"));
+		return timesList;
+	}
+
+
 
 	public LinkedList<String> getActiveColumnNames(){
 		LinkedList<String>  colNames = new LinkedList<String>();
@@ -80,18 +105,7 @@ public class TimetableModel {
 		return content;
 	}
 	
-	private void refreshColumnCount(){
-		columnCount = 1+(Days.isActive(DaysEnum.sunday) ? 1:0) + ((Days.isActive(DaysEnum.saturday)) ? 1:0) + 
-				(Days.isActive(DaysEnum.friday) ? 1:0) +(Days.isActive(DaysEnum.thursday) ? 1:0)+ (Days.isActive(DaysEnum.wednesday) ? 1:0)+
-				(Days.isActive(DaysEnum.tuesday) ? 1:0) + (Days.isActive(DaysEnum.monday) ? 1:0);
-	}
 	
-	
-	// NOT FINAL, should be connected to Times-Array
-	private void refreshRowCount() {
-		rowCount = 8;
-		
-	}
 	
 	public void setDayActive(DaysEnum day,boolean b){
 		Days.setActive(day, b);
@@ -168,7 +182,7 @@ public class TimetableModel {
 	public String[][] getTableContent() {
 		String[][] content = new String[rowCount][columnCount];
 		for(int i = 0; i< rowCount;i++){
-			content[i][0] = DEFAULT_TIME_DURATIONS[i];
+			content[i][0] = times.get(i).getFormattedTimeDuration();
 		}
 		
 		/*LinkedList<Point>[] itemPositions = (LinkedList<Point>[]) new LinkedList[items.size()];
@@ -188,7 +202,48 @@ public class TimetableModel {
 	}
 
 
-
+	public String[] getTimesAsString(){
+		String[] timesString = new String[times.size()];
+		int index = 0;
+		for(TimeDuration td: times){
+			timesString[index++] = td.getFormattedTimeDuration();
+		}
+		return timesString;
+	}
+	
+	public String[] getTimesListString(){
+		LinkedList<String> timeStrings = new LinkedList<String>();
+		timeStrings.add(FIRST_LIST_ENTRY);
+		timeStrings.addAll(Arrays.asList(getTimesAsString()));
+		return timeStrings.toArray(new String[0]);
+	}
+	
+	public LinkedList<TimeDuration> getTimes(){
+		return times;
+	}
+	
+	public TimeDuration getTime(String string) {
+		for(TimeDuration period: times){
+			if(period.getFormattedTimeDuration().equals(string)){
+				return period;
+			}
+		}
+		throw new IllegalArgumentException("'string' must be in the Format 'XXXX - XXXX' and an existing timeduration!");
+	}
+	
+	private void refreshColumnCount(){
+		columnCount = 1+(Days.isActive(DaysEnum.sunday) ? 1:0) + ((Days.isActive(DaysEnum.saturday)) ? 1:0) + 
+				(Days.isActive(DaysEnum.friday) ? 1:0) +(Days.isActive(DaysEnum.thursday) ? 1:0)+ (Days.isActive(DaysEnum.wednesday) ? 1:0)+
+				(Days.isActive(DaysEnum.tuesday) ? 1:0) + (Days.isActive(DaysEnum.monday) ? 1:0);
+	}
+	
+	
+	// NOT FINAL, should be connected to Times-Array
+	private void refreshRowCount() {
+		rowCount = 8;
+		
+	}
+	
 	private Point[] getPossibleTablePosition(Item item) {
 		Point[] positions = new Point[item.getDates().size()];
 		int i = 0;
@@ -198,5 +253,27 @@ public class TimetableModel {
 		}
 		return positions;
 	}
+
+
+
+	public void deleteTime(TimeDuration timeToEdit) {
+		times.remove(timeToEdit);
+	}
+
+
+
+	public void addTime(TimeDuration newPeriod) {
+		// algorithm to sort it in
+		boolean notOverlapping = true;
+		for(TimeDuration tiDu: times){
+			if(tiDu.overlaps(newPeriod)){
+				notOverlapping = false;
+			}
+		}
+		
+		times.add(newPeriod);
+		
+	}
+	
 
 }
