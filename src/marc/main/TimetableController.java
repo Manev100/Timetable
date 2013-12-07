@@ -13,6 +13,7 @@ public class TimetableController {
 	public TimetableController(){
 		model = new TimetableModel();
 		view = new TimetableView(model);
+		model.addObserver(view);
 	}
 	
 	

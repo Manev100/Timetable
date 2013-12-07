@@ -20,6 +20,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -135,10 +136,25 @@ public class EditTimesDialog extends JDialog {
 					Time toTime = new Time(toField.getTime()); 
 					if(fromTime.getTimeInInt() < toTime.getTimeInInt()){
 						TimeDuration newPeriod = new TimeDuration(fromTime, toTime);
+						
 						if(!newPeriod.equals(timeToEdit)){
-							model.deleteTime(timeToEdit);
-							model.addTime(newPeriod);
-						}
+								if(model.isColliding(newPeriod)){
+									// needs some work, only works for editing Times not for new times, maybe add null-timeduration element
+									Object[] options = {"Cut new period","Cut existing periods","Cancel"};
+									int n = JOptionPane.showOptionDialog(null, "Entered timeperiod collides with existing periods. What to do?", "Collision detected!",
+																		JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+									// not setting mode correctly
+									if(n == TimetableModel.ADD_TIMES_MODE_CUT_EXISTING_PERIODS){
+										model.setCutMode(TimetableModel.ADD_TIMES_MODE_CUT_EXISTING_PERIODS);
+									}else if(n == TimetableModel.ADD_TIMES_MODE_CUT_NEW_PERIOD){
+										model.setCutMode(TimetableModel.ADD_TIMES_MODE_CUT_NEW_PERIOD);
+									}
+								}
+								model.deleteTime(timeToEdit);
+								model.addTime(newPeriod);
+								
+								
+						}		
 						refresh();
 						showSelectionPanel();
 						pack();
@@ -147,6 +163,7 @@ public class EditTimesDialog extends JDialog {
 					}
 				}catch(IllegalArgumentException ex){
 					// error
+					System.out.println(ex.getMessage());
 				}
 				
 			}
@@ -244,7 +261,7 @@ public class EditTimesDialog extends JDialog {
 								periodToDelete = time;
 							}
 						}
-						timesList.remove(periodToDelete);
+						model.deleteTime(periodToDelete);
 					}
 					info.setText("Delete or edit Time Periods!");
 					refresh();
@@ -269,6 +286,7 @@ public class EditTimesDialog extends JDialog {
 						toField.setTime(timeToEdit.getToTime());
 						fromField.setTime(timeToEdit.getFromTime());
 					}else{
+						timeToEdit = null;
 						toField.reset();
 						fromField.reset();
 					}
@@ -286,7 +304,6 @@ public class EditTimesDialog extends JDialog {
 	}
 	
 	public void refresh(){
-		
 		itemsList.setListData(model.getTimesListString());
 		if(model.getRowCount()<= MAX_ITEMS_DISPLAYED){
 			itemsList.setVisibleRowCount(model.getRowCount());

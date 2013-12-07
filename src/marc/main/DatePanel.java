@@ -20,10 +20,11 @@ public class DatePanel extends JPanel {
 
 
 	private TimetableModel model;
-	private JComboBox<?> dayBox;
+	private JComboBox<String> dayBox;
 	private TimeField toField;
 	private TimeField fromField;
 	private JTextField locationField;
+	private JComboBox<TimeDuration> timeBox;
 	
 	public DatePanel(String title, TimetableModel m) {
 		super(new BorderLayout());
@@ -55,6 +56,11 @@ public class DatePanel extends JPanel {
 
 	private JPanel createTimePanel() {
 		JPanel panel = new JPanel(new FlowLayout());
+		
+		timeBox = new JComboBox<TimeDuration>(model.getTimes().toArray(new TimeDuration[0]));
+		
+		panel.add(timeBox);
+		/*
 		toField = new TimeField();
 		fromField = new TimeField();
 		
@@ -62,16 +68,16 @@ public class DatePanel extends JPanel {
 		panel.add(fromField, FlowLayout.CENTER);
 		panel.add(toField, FlowLayout.RIGHT);
 		panel.add(new JLabel("to: "),FlowLayout.RIGHT);
-		
+		*/
 		
 		return panel;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	
 	private JPanel createDayPanel() {
 		JPanel panel = new JPanel();
 		JLabel label = new JLabel("Day: ");
-		dayBox = new JComboBox(model.getActiveDays().toArray());
+		dayBox = new JComboBox<String>(model.getActiveDays().toArray(new String[0]));
 		
 		panel.add(label, BorderLayout.WEST);
 		panel.add(dayBox, BorderLayout.EAST);
@@ -91,6 +97,7 @@ public class DatePanel extends JPanel {
 	}
 	
 	public boolean verifyValues(){
+		/*
 		boolean viable = true;
 		int fromTime = fromField.timeInInteger();
 		int toTime = toField.timeInInteger();
@@ -98,19 +105,23 @@ public class DatePanel extends JPanel {
 			viable = false;
 		}
 		return viable;
-
+		*/
+		return true;
 	}
 	
 	
 	
 	public ItemDate getTimeDate(){
-		if(verifyValues()){
+		/*
+		 * if(verifyValues()){
 			TimeDuration time = new TimeDuration(new Time(fromField.getTime()), new Time(toField.getTime()));
 			ItemDate date = new ItemDate(time, (String) dayBox.getSelectedItem(), locationField.getText());
 			return date;
 		}else{
 			return null;
 		}
+		*/
+		return new ItemDate((TimeDuration)timeBox.getSelectedItem(), (String) dayBox.getSelectedItem(),locationField.getText());
 	}
 	
 	public JComboBox<?> getDayBox() {
@@ -130,8 +141,11 @@ public class DatePanel extends JPanel {
 	}
 	
 	public void fill(ItemDate date){
+		/*
 		fromField.setTime(date.getTime().getFromTime());
 		toField.setTime(date.getTime().getToTime());
+		*/
+		timeBox.setSelectedItem(model.getTime(date.getTime().getFormattedTimeDuration()));
 		locationField.setText(date.getLocation());
 		dayBox.setSelectedIndex(Days.getDaysEnum(date.getDay()).getNumber()-1);
 	}

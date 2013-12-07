@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -21,7 +23,7 @@ import javax.swing.table.TableModel;
 import marc.ItemStuff.Item;
 import marc.enums.DaysEnum;
 
-public class TimetableView {
+public class TimetableView implements Observer{
 	private JFrame frame;
 	private final Dimension startSize = new Dimension(800,600);
 	private TimetableModel model;
@@ -47,7 +49,6 @@ public class TimetableView {
 		editTimesDialog.pack(); 
 		
 		setTableContent(model.getTableContent());
-		
 		
 	}
 	
@@ -166,5 +167,18 @@ public class TimetableView {
 	
 	public void show(){
 		frame.setVisible(true);
+	}
+
+	@Override
+	public void update(Observable arg0, Object arg1) {
+		if(arg1 == model.getItemsList()){
+			setTableContent(model.getTableContent());
+			frame.pack();
+		}else if(arg1 == model.getTimes()){
+			setTableContent(model.getTableContent());
+			frame.pack();
+			
+		}
+		
 	}
 }

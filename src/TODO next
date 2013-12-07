@@ -1,10 +1,12 @@
-Road to success! You can do this! Keep working!
 
-1. finish EditTimesDialog(2nd Panel)
-2. modify editItemDialog so that you can´t choose times like you want, rather choose from current time periods list. What to do when adding/deleting times which collides with item dates?
+1. finish EditTimesDialog(2nd Panel), 
+   -> join function in first EditTimesDialog toTimeDurations together
+2. What to do when adding/deleting times which collides with item dates?
 3. let stuff be displayed on table
+
 4. algorithm at conflicting itemdates. new menu item? new dialog?
 5. priority option in items?
 6. choose between different tables?
 7. saving loading!
+7.1 on startup, detect inconsistency in data(Items and Timeperiods!), can select to wipe items(or periods)
 8. merge edit items and new item. in edit item topmost list item is "new item", like times

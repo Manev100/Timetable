@@ -41,7 +41,7 @@ public class TimeField extends JTextField {
 						setText(time);
 						break;
 					case 3:
-						if(Integer.parseInt("" + time.charAt(4)) == 2 && number > 4){
+						if(Integer.parseInt("" + time.charAt(4)) == 2 && number > 3){
 							setText(time);
 							break;
 						}

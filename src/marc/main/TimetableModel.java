@@ -1,9 +1,12 @@
 package marc.main;
 
+import java.awt.List;
 import java.awt.Point;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
+import java.util.Observable;
 
 import javax.swing.ListModel;
 
@@ -14,7 +17,7 @@ import marc.ItemStuff.TimeDuration;
 import marc.enums.Days;
 import marc.enums.DaysEnum;
 
-public class TimetableModel {
+public class TimetableModel extends Observable{
 	private int columnCount;
 	private int rowCount;
 	private LinkedList<Item> items;
@@ -25,6 +28,9 @@ public class TimetableModel {
 	private String[] tableTimes;
 
 	private static final String FIRST_LIST_ENTRY = "New Period";
+	public static final int ADD_TIMES_MODE_CUT_EXISTING_PERIODS = 1;
+	public static final int ADD_TIMES_MODE_CUT_NEW_PERIOD = 0;
+	private int cutMode;
 	
 	
 	public TimetableModel(){
@@ -32,25 +38,26 @@ public class TimetableModel {
 		refreshRowCount();
 		items = new LinkedList<Item>();
 		times = getDefaultTimes();
+		cutMode = ADD_TIMES_MODE_CUT_EXISTING_PERIODS;
 		
 		tableTimes = DEFAULT_TIME_DURATIONS;
 		
 		//test
-		items.add(new Item("Item 1", "here", new Time("1111"), new Time("2222"), "Monday"));
-		items.add(new Item("Item 2", "here", new Time("1111"), new Time("2222"), "Tuesday"));
-		items.add(new Item("Item 3", "here", new Time("1111"), new Time("2222"), "Saturday"));
-		items.add(new Item("Item 4", "here", new Time("1111"), new Time("2222"), "Sunday"));
-		items.add(new Item("Item 5", "here", new Time("1111"), new Time("2222"), "Thursday"));
-		items.add(new Item("Item 6", "here", new Time("0000"), new Time("0050"), "Monday"));
-		items.add(new Item("Item 7", "here", new Time("0000"), new Time("0050"), "Tuesday"));
-		items.add(new Item("Item 8", "here", new Time("0000"), new Time("0050"), "Saturday"));
-		items.add(new Item("Item 9", "here", new Time("0000"), new Time("0050"), "Sunday"));
-		items.add(new Item("Item 10", "here", new Time("0000"), new Time("0050"), "Thursday"));
-		items.add(new Item("Item 11", "here", new Time("0051"), new Time("1110"), "Monday"));
-		items.add(new Item("Item 12", "here", new Time("0051"), new Time("1110"), "Tuesday"));
-		items.add(new Item("Item 13", "here", new Time("0051"), new Time("1110"), "Saturday"));
-		items.add(new Item("Item 14", "here", new Time("0051"), new Time("1110"), "Sunday"));
-		items.add(new Item("Item 15", "here", new Time("0051"), new Time("1110"), "Thursday"));
+		items.add(new Item("Item 1", "here", new Time("0800"), new Time("0900"), "Monday"));
+		items.add(new Item("Item 2", "here", new Time("0800"), new Time("0900"), "Tuesday"));
+		items.add(new Item("Item 3", "here", new Time("0800"), new Time("0900"), "Saturday"));
+		items.add(new Item("Item 4", "here", new Time("0800"), new Time("0900"), "Sunday"));
+		items.add(new Item("Item 5", "here", new Time("0800"), new Time("0900"), "Thursday"));
+		items.add(new Item("Item 6", "here", new Time("0900"), new Time("1000"), "Monday"));
+		items.add(new Item("Item 7", "here", new Time("0900"), new Time("1000"), "Tuesday"));
+		items.add(new Item("Item 8", "here", new Time("0900"), new Time("1000"), "Saturday"));
+		items.add(new Item("Item 9", "here", new Time("0900"), new Time("1000"), "Sunday"));
+		items.add(new Item("Item 10", "here", new Time("0900"), new Time("1000"), "Thursday"));
+		items.add(new Item("Item 11", "here", new Time("1300"), new Time("1400"), "Monday"));
+		items.add(new Item("Item 12", "here", new Time("1300"), new Time("1400"), "Tuesday"));
+		items.add(new Item("Item 13", "here", new Time("1300"), new Time("1400"), "Saturday"));
+		items.add(new Item("Item 14", "here", new Time("1300"), new Time("1400"), "Sunday"));
+		items.add(new Item("Item 15", "here", new Time("1300"), new Time("1400"), "Thursday"));
 	}
 	
 	
@@ -122,6 +129,8 @@ public class TimetableModel {
 	}
 	public void addItem(Item item){
 		items.add(item);
+		setChanged();
+		notifyObservers(items);
 	}
 
 
@@ -136,17 +145,23 @@ public class TimetableModel {
 
 	public void deleteItem(Item item) {
 		items.remove(item);
+		setChanged();
+		notifyObservers(items);
 	}
 
 	public void deleteItems(int[] ItemsToDelete) {
 		for(int i:ItemsToDelete){
 			items.remove(i);
-		}	
+		}
+		setChanged();
+		notifyObservers(items);
 	}
 	public void deleteItems(Item[] ItemsToDelete) {
 		for(Item i:ItemsToDelete){
 			items.remove(i);
 		}	
+		setChanged();
+		notifyObservers(items);
 	}
 	public Item getItem(String name){
 		Item item = null;
@@ -184,7 +199,10 @@ public class TimetableModel {
 		for(int i = 0; i< rowCount;i++){
 			content[i][0] = times.get(i).getFormattedTimeDuration();
 		}
-		
+		for(Item item: items){
+			ItemDate date = item.getFocusDate();
+		    //do smth
+		}
 		/*LinkedList<Point>[] itemPositions = (LinkedList<Point>[]) new LinkedList[items.size()];
 		for(Item item: items){
 			Point[] positions = getPossibleTablePosition(item);
@@ -257,23 +275,127 @@ public class TimetableModel {
 
 
 	public void deleteTime(TimeDuration timeToEdit) {
-		times.remove(timeToEdit);
+		if(timeToEdit != null){
+			times.remove(timeToEdit);
+			setChanged();
+			notifyObservers(times);
+		}
+		
 	}
 
 
 
 	public void addTime(TimeDuration newPeriod) {
 		// algorithm to sort it in
-		boolean notOverlapping = true;
+		LinkedList<TimeDuration> overlappingPeriods = new LinkedList<TimeDuration>();
 		for(TimeDuration tiDu: times){
 			if(tiDu.overlaps(newPeriod)){
-				notOverlapping = false;
+				// doesnt work if from and to times are equal! what to do?
+				overlappingPeriods.add(tiDu);
+				System.out.println(tiDu);
 			}
 		}
-		
-		times.add(newPeriod);
-		
+		if(overlappingPeriods.size() == 0){
+			times.add(newPeriod);
+		}else{
+			if(cutMode == ADD_TIMES_MODE_CUT_EXISTING_PERIODS){
+				LinkedList<TimeDuration> periodsToDestroy = new LinkedList<TimeDuration>();
+				for(TimeDuration tiDu: overlappingPeriods){
+					int overlappingDirection = newPeriod.getOverlappingDirection(tiDu);
+					switch(overlappingDirection){
+						case TimeDuration.INNER_PERIOD:
+							times.remove(tiDu);
+							break;
+						case TimeDuration.OUTER_PERIOD:
+							//break tidu 2x
+							times.add(tiDu.cut(newPeriod.getFromTime()));
+							tiDu.cut(newPeriod.getToTime());
+							break;
+						case TimeDuration.OVERLAPPING_PERIOD_EARLIER:
+							//break tidu left
+							times.add(tiDu.cut(newPeriod.getFromTime()));
+							times.remove(tiDu);
+							break;
+						case TimeDuration.OVERLAPPING_PERIOD_LATER:
+							//break tidu right
+							tiDu.cut(newPeriod.getToTime());
+							break;
+						case TimeDuration.SAME_PERIOD:
+							times.remove(tiDu);
+							break;
+					}
+					
+					
+				}
+			}else if(cutMode == ADD_TIMES_MODE_CUT_NEW_PERIOD){
+				for(TimeDuration tiDu: overlappingPeriods){
+					int overlappingDirection = newPeriod.getOverlappingDirection(tiDu);
+					switch(overlappingDirection){
+						case TimeDuration.INNER_PERIOD:
+							times.add(newPeriod.cut(tiDu.getFromTime()));
+							//newPeriod.cut(tiDu.getFromTime());
+							break;
+						case TimeDuration.OUTER_PERIOD:
+							newPeriod = null;
+							break;
+						case TimeDuration.OVERLAPPING_PERIOD_EARLIER:
+							newPeriod.cut(tiDu.getToTime());
+							break;
+						case TimeDuration.OVERLAPPING_PERIOD_LATER:
+							newPeriod = newPeriod.cut(tiDu.getFromTime());
+							break;
+						case TimeDuration.SAME_PERIOD:
+							times.remove(tiDu);
+							break;
+					}
+					
+				}
+			}else{
+				throw new IllegalStateException("Choose a valid cut-Mode to run method `addTime`");
+			}
+
+			if(newPeriod != null){
+				times.add(newPeriod);
+			}
+			cutNullTimeDurations();
+			Collections.sort(times);
+			setChanged();
+			notifyObservers(times);
+		}	
+	}
+
+	private void cutNullTimeDurations(){
+		LinkedList<TimeDuration> timesToDelete = new LinkedList<TimeDuration>();
+		for(TimeDuration period: times){
+			if(period.getFromTime().equals(period.getToTime())){
+				timesToDelete.add(period);
+			}
+		}
+		times.removeAll(timesToDelete);
 	}
 	
+	public boolean isColliding(TimeDuration newPeriod) {
+		LinkedList<TimeDuration> overlappingPeriods = new LinkedList<TimeDuration>();
+		for(TimeDuration tiDu: times){
+			if(tiDu.overlaps(newPeriod)){
+				overlappingPeriods.add(tiDu);
+				System.out.println(tiDu + "asdasd");
+			}
+		}
+		if(overlappingPeriods.size() == 0){
+			return false;
+		}else{
+			return true;
+		}
+	}
+	
+	public void setCutMode(int mode){
+		cutMode = mode;
+	}
+	
+	// debug method
+	public void printTimes(){
+		System.out.println(times.toString());
+	}
 
 }

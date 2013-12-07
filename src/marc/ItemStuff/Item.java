@@ -15,19 +15,21 @@ public class Item {
 	private String day;
 	private final int ATTRIBUTECOUNT = 5;
 	private LinkedList<ItemDate> dates;
-	
+	private ItemDate focusDate;
 	
 	public Item(String name, ItemDate... dates) {
 		this.name = name;
 		this.dates = new LinkedList<ItemDate>();
 		for(ItemDate t: dates){
 			this.dates.add(t);
-		}	
+		}
+		setFocusDate(this.dates.getFirst());
 	}
 	
 	public Item(String name, LinkedList<ItemDate> dat) {
 		this.name = name;
-		this.dates = dat;	
+		this.dates = dat;
+		setFocusDate(this.dates.getFirst());
 	}
 	
 	public Item(String name, String location, Time from, Time to, String day) {
@@ -36,10 +38,20 @@ public class Item {
 		this.to = to;
 	}
 	
+	public void setFocusDate(ItemDate date){
+		focusDate = date;
+	}
+	public void setFocusDate(int index){
+		focusDate = dates.get(index);
+	}
+	public ItemDate getFocusDate(){
+		return focusDate;
+	}
 	
 	public void setDates(Collection<ItemDate> datesList){
 		dates.clear();
 		dates.addAll(datesList);
+		setFocusDate(dates.getFirst());
 	}
 	
 	public void setDates(ItemDate[] datesList){
@@ -47,6 +59,7 @@ public class Item {
 		for(ItemDate date: datesList){
 			dates.add(date);
 		}
+		setFocusDate(dates.getFirst());
 	}
 	
 	public String getName() {
